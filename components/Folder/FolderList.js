@@ -25,18 +25,12 @@ function FolderList({ folderList ,isBig=true}) {
         items-center"
       >
         Thư mục
-        <span
-          className="float-right
-        text-blue-400 font-normal
-        text-[13px]"
-        >
-          View All
-        </span>
+        
       </h2>:null}
       {isBig?   <div
         className="grid grid-cols-2
         md:grid-cols-3
-        lg:grid-cols-4
+        lg:grid-cols-6
         xl:grid-cols-5 mt-3
         gap-4"
       >

@@ -22,6 +22,7 @@ export default NextAuth({
           await setDoc(userRef, {
             name: user.name || "Unknown",
             email: user.email,
+            emailcontact: user.email,
             image: user.image || null,
             phone: null,
             role: 1,

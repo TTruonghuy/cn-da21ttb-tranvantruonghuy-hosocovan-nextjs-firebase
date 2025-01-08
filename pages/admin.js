@@ -52,7 +52,8 @@ function AdminPage() {
     const folderQuery = query(
       collection(db, "Folders"),
       where("createBy", "==", userEmail),
-      where("parentFolderId", "==", 0)
+      where("parentFolderId", "==", 0),
+      where('delete', '==', false)
     );
     const folderSnapshot = await getDocs(folderQuery);
     const fetchedFolders = folderSnapshot.docs.map(doc => doc.data());
@@ -61,7 +62,8 @@ function AdminPage() {
     const fileQuery = query(
       collection(db, "files"),
       where("createdBy", "==", userEmail),
-      where("parentFolderId", "==", 0)
+      where("parentFolderId", "==", 0),
+      where('delete', '==', false)
     );
     const fileSnapshot = await getDocs(fileQuery);
     const fetchedFiles = fileSnapshot.docs.map(doc => doc.data());
@@ -95,7 +97,7 @@ function AdminPage() {
       <div className="flex-1 bg-white p-5">
         {selectedUser ? (
           <>
-            <h2 className="text-xl font-bold">{selectedUser.name}</h2>
+            <div className="flex mb-2"><p className="mt-[2px] mr-2">Hồ sơ cố vấn:</p><h2 className="text-xl font-bold ">{selectedUser.name}</h2></div>
             <FolderList folderList={folderList} />
             <FileList fileList={fileList} />
           </>

@@ -4,7 +4,7 @@ import { app } from "../../Config/FirebaseConfig";
 import { useSession } from "next-auth/react";
 import { ParentFolderIdContext } from "../../context/ParentFolderIdContext";
 import { ShowToastContext } from "../../context/ShowToastContext";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, getStorage, ref, uploadBytes, updateMetadata } from "firebase/storage";
 function UploadFileModal({ closeModal }) {
   const { data: session } = useSession();
   const { parentFolderId, setParentFolderId } = useContext(
@@ -17,21 +17,23 @@ function UploadFileModal({ closeModal }) {
   const storage = getStorage(app);
 
   const onFileUpload = async (file) => {
-    if(file)
-    {
-    if(file?.size>1000000)
-    {
-      setShowToastMsg("File is too large")
-      return ;
-    }
-    const fileRef = ref(storage, "file/" + file.name);
-
-    uploadBytes(fileRef, file)
-      .then((snapshot) => {
-        console.log("Uploaded a blob or file!");
-      })
-      .then((resp) => {
-        getDownloadURL(fileRef).then(async (downloadURL) => {
+    if (file) {
+      if (file?.size > 1000000) {
+        setShowToastMsg("File is too large")
+        return;
+      }
+      const fileRef = ref(storage, "file/" + file.name);
+      uploadBytes(fileRef, file)
+        .then((snapshot) => {
+          console.log("Uploaded a blob or file!");
+          return updateMetadata(fileRef, {
+            customMetadata: { public: "true" }, // Đặt file công khai
+          });
+        })
+        .then(() => {
+          return getDownloadURL(fileRef);
+        })
+        .then(async (downloadURL) => {
           console.log("File available at", downloadURL);
           await setDoc(doc(db, "files", docId.toString()), {
             name: file.name,
@@ -42,13 +44,14 @@ function UploadFileModal({ closeModal }) {
             parentFolderId: parentFolderId,
             imageUrl: downloadURL,
             delete: false,
-            id:docId
+            id: docId,
           });
-        closeModal(true);
-        setShowToastMsg("File Uploaded Successfully!");
+          closeModal(true);
+          setShowToastMsg("Tải lên thành công!");
+        })
+        .catch((error) => {
+          console.error("Error uploading file:", error);
         });
-      });
-
     }
   };
   return (

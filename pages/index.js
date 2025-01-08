@@ -2,14 +2,15 @@ import Head from 'next/head';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
-import { collection, getDocs, getFirestore, query, where } from 'firebase/firestore';
+import { collection, getDocs, getFirestore, query, where, onSnapshot } from 'firebase/firestore';
 import { app } from '../Config/FirebaseConfig';
 import { ParentFolderIdContext } from '../context/ParentFolderIdContext';
 import { ShowToastContext } from '../context/ShowToastContext';
 import FolderList from '../components/Folder/FolderList';
 import FileList from '../components/File/FileList';
 import SideNavBar from '../components/SideNavBar';  // Import SideNavBar
-import Profile from '../components/Users/Profile';  // Import Profile component
+//import Profile from './profile';  // Import Profile component
+//import Trash from './trash';  // Import Profile component
 
 export default function Home() {
   const { data: session } = useSession();  // Lấy dữ liệu session
@@ -37,7 +38,8 @@ export default function Home() {
     const q = query(
       collection(db, 'Folders'),
       where('parentFolderId', '==', 0),  // Lọc các thư mục có parentFolderId là 0
-      where('createBy', '==', session.user.email)  // Lọc thư mục của người dùng hiện tại
+      where('createBy', '==', session.user.email),  // Lọc thư mục của người dùng hiện tại
+      where('delete', '==', false)
     );
 
     const querySnapshot = await getDocs(q);  // Lấy dữ liệu từ Firestore
@@ -50,13 +52,18 @@ export default function Home() {
     const q = query(
       collection(db, 'files'),
       where('parentFolderId', '==', 0),  // Lọc các file có parentFolderId là 0
-      where('createdBy', '==', session.user.email)  // Lọc file của người dùng hiện tại
+      where('createdBy', '==', session.user.email),
+      where('delete', '==', false) // Lọc file của người dùng hiện tại
     );
-
-    const querySnapshot = await getDocs(q);  // Lấy dữ liệu từ Firestore
-    querySnapshot.forEach((doc) => {
-      setFileList((fileList) => [...fileList, doc.data()]);  // Cập nhật danh sách file
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const updatedFileList = [];
+      querySnapshot.forEach((doc) => {
+        updatedFileList.push({ id: doc.id, ...doc.data() });
+      });
+      setFileList(updatedFileList); // Cập nhật danh sách file trong state
     });
+
+    return unsubscribe; // Trả về hàm hủy đăng ký
   };
 
   // Hàm xử lý click menu
@@ -74,19 +81,15 @@ export default function Home() {
 
       <div className="flex">
         {/* Hiển thị SideNavBar ở bên trái */}
-        <SideNavBar onMenuClick={onMenuClick} currentView={currentView} />
-        
+       <div className='sticky top-[105px] left-0 h-full z-10'><SideNavBar onMenuClick={onMenuClick} currentView={currentView} /></div>
 
-        <div className="p-6 flex-1">
-          {currentView === 'profile' ? (
-            <Profile userEmail={session.user.email} />  // Hiển thị thông tin người dùng
-          ) : (
+        <div className="p-6 flex-1 h-[1000px]">
             <>
               {/* Hiển thị danh sách thư mục và file */}
               <FolderList folderList={folderList} />
               <FileList fileList={fileList} />
             </>
-          )}
+          
         </div>
       </div>
     </>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useRouter } from "next/router"; // Import useRouter
 import menu from "../data/menu"; // Dữ liệu menu
 import CreateFolderModal from "./Folder/CreateFolderModal";
 import UploadFileModal from "./File/UploadFileModal";
@@ -6,10 +7,19 @@ import { useSession } from "next-auth/react";
 
 function SideNavBar({ onMenuClick, currentView }) {
   const { data: session } = useSession();
+  const router = useRouter(); // Khởi tạo router
+
+  // Hàm xử lý khi nhấn vào menu
+  const handleMenuClick = (item) => {
+    router.push(item.path); // Điều hướng tới đường dẫn của item
+    if (onMenuClick) {
+      onMenuClick(item); // Gọi hàm onMenuClick nếu có
+    }
+  };
 
   return (
     session && (
-      <div className="w-[200px] bg-white h-screen sticky top-0 z-10 shadow-blue-200 shadow-md p-5">
+      <div className="w-[200px] bg-white shadow-blue-200 shadow-md p-5 h-[500px] z-10">
         {/* Nút Thêm tài liệu */}
         <button
           onClick={() => window.upload_file.showModal()}
@@ -59,11 +69,11 @@ function SideNavBar({ onMenuClick, currentView }) {
           {menu.list.map((item, index) => (
             <h2
               key={index}
-              onClick={() => onMenuClick(item)}
-              className={`flex gap-2 items-center p-2 mt-3 rounded-md cursor-pointer transition-all ${
+              onClick={() => handleMenuClick(item)} // Gọi hàm điều hướng khi nhấn
+              className={`flex gap-2 border border-gray-300 items-center p-2 mt-3 rounded-md cursor-pointer transition-all ${
                 currentView === item.id
                   ? "bg-blue-500 text-white hover:scale-105"
-                  : "text-gray-500 hover:bg-gray-100"
+                  : "text-gray-500 hover:bg-gray-100 hover:scale-105"
               }`}
             >
               <svg

@@ -1,4 +1,4 @@
-import CreateFolderModal from "../components/Folder/CreateFolderModal";
+//import CreateFolderModal from "../components/Folder/CreateFolderModal";
 import Toast from "../components/Toast";
 import "../styles/globals.css";
 import { SessionProvider } from "next-auth/react";
@@ -25,7 +25,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
           <div className="flex flex-col h-screen">
             {/* Kiểm tra và chỉ hiển thị header nếu không phải trang welcome */}
             {!isWelcomePage && (
-              <div className="w-full bg-white p-5 flex items-center justify-between border-b border-gray-300">
+              <div className="w-full bg-white p-5 flex items-center justify-between border-b border-gray-300 sticky top-0 z-50">
                 <div className="flex items-center space-x-3 pl-14">
                   <img src="/logo.ico" alt="Logo" className="w-16 h-16" /> {/* Logo */}
                   <span className="text-2xl font-semibold text-blue-900">

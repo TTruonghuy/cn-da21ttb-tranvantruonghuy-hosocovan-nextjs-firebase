@@ -3,17 +3,17 @@ import React from 'react'
 
 function FolderItem({folder}) {
   return (
-    <div className={`w-full
+    <div className={`w-[120px]
     flex flex-col justify-center 
-    items-center h-[120px]
+    items-center h-full
     border-[1px] 
-    rounded-lg p-5 bg-white
+    rounded-lg p-4 bg-white
     hover:scale-105 hover:shadow-md
     cursor-pointer `}>
         <Image src='/folder.png'
         alt='folder'
-        width={40}
-        height={40}
+        width={50}
+        height={50}
         />
         <h2 className='line-clamp-2
         text-[12px] text-center'>{folder.name}</h2>
